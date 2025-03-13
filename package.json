@@ -4,15 +4,32 @@
   "description": "chai aur backend aur assignments",
   "license": "ISC",
   "author": "me",
-  "type": "commonjs",
+  "type": "module",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cloudinary": "^1.25.1",
+    "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "mongoose": "^8.12.1"
+    "dotenv": "^10.0.0",
+    "express": "^4.17.1",
+    "express-validator": "^6.12.0",
+    "jsonwebtoken": "^9.0.2",
+    "moment": "^2.29.1",
+    "mongoose": "^8.12.1",
+    "multer": "^1.4.2",
+    "nodemailer": "^6.6.3",
+    "nodemailer-sendgrid-transport": "^0.2.0",
+    "sharp": "^0.33.5",
+    "socket.io": "^4.0.1",
+    "socket.io-client": "^4.0.1",
+    "uuid": "^8.3.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
   }
 }
