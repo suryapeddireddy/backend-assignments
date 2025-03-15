@@ -6,9 +6,9 @@ import app from "../app.js";
 
 const connectDB = async () => {
 try {
-    await mongoose.connect(process.env.MONGODB_URI);
+   const db=await mongoose.connect(process.env.MONGODB_URI);
     app.listen(process.env.PORT, () => {
-        console.log(`Server is running on port ${process.env.PORT}`);
+        console.log(`Server is running on port ${process.env.PORT} ${db.connection.name}`);
     });
     console.log('Database connected!');
 } catch (error) {

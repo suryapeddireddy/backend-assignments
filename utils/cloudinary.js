@@ -15,7 +15,6 @@ dotenv.config();
             const uploadResult = await cloudinary.uploader.upload(imageUrl, {
                 public_id: publicId,
             });
-            console.log(uploadResult);
             return uploadResult;
         } catch (error) {
             console.error('Error uploading image:', error);
