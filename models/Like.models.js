@@ -15,4 +15,5 @@ ref:"Comment"
 }
 })
 
-export const Like=mongoose.model("Like",LikeSchema);
+ const Like=mongoose.model("Like",LikeSchema);
+ export default Like;

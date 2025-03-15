@@ -31,5 +31,5 @@ required:true
 }
 },{timestamps:true});
 
-export const Video=mongoose.model("Video", VideoSchema);
-
+const Video=mongoose.model("Video", VideoSchema);
+export default Video;
