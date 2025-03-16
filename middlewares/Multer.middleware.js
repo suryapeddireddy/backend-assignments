@@ -7,8 +7,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Path to the uploads directory
-const uploadDirectory = `${__dirname}/uploads`;
+// Path to the public/uploads directory
+const uploadDirectory = `${__dirname}/../public/uploads`; // Adjusted to go to public/uploads
 
 // Ensure the directory exists
 if (!fs.existsSync(uploadDirectory)) {
