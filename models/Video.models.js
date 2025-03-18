@@ -13,11 +13,11 @@ type:mongoose.Schema.Types.ObjectId,
 ref:"User",
 required:true
 },
-videourl:{
+video:{
 type:String,
 required:true
 },
-thumbnai:{
+thumbnail:{
 type:String,
 required:true
 },

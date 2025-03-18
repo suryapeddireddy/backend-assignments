@@ -1,21 +1,25 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
+dotenv.config();
+
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique:true
+    unique: true,
   },
   email: {
     type: String,
     required: true,
-    unique:true
+    unique: true,
   },
   password: {
     type: String,
     required: true,
-    select:false
+    select: false, // Exclude password by default
   },
   avatar: {
     type: String,
@@ -35,7 +39,7 @@ const UserSchema = new mongoose.Schema({
   ],
   refreshToken: {
     type: String,
-    required: false,
+    default: null, // Use default instead of `required: false`
   },
   comments: [
     {
@@ -45,18 +49,43 @@ const UserSchema = new mongoose.Schema({
   ],
 });
 
-UserSchema.methods.ispasswordCorrect=async (password)=>{
-return await bcrypt.compare(password,this.password);
-}
+// 🔹 Hash password before saving user
+UserSchema.pre("save", async function (next) {
+  if (this.isModified("password") || this.isNew) {
+    const saltRounds = 10;
+    this.password = await bcrypt.hash(this.password, saltRounds);
+  }
+  next();
+});
 
-UserSchema.methods.generateRefreshToken=async()=>{
- return jwt.sign({id:this._id},process.env.REFRESH_TOKEN_SECRET,{expiresIn:process
-  .env.REFRESH_TOKEN_EXPIRY
- })
-}
-UserSchema.methods.generateAccessToken=async()=>{
-return jwt.sign({id:this._id,username:this.username,email:this.email},process.env.ACCESS_TOKEN_SECRET,{expiresIn:process.env.ACCESS_TOKEN_EXPIRY})
-}
+// 🔹 Method to check if password is correct
+UserSchema.methods.isPasswordCorrect = async function (password) {
+  return await bcrypt.compare(password, this.password);
+};
+
+// 🔹 Generate Refresh Token
+UserSchema.methods.generateRefreshToken = async function () {
+  return jwt.sign(
+    { id: this._id },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
+  );
+};
+
+// 🔹 Generate Access Token
+UserSchema.methods.generateAccessToken = async function () {
+  return jwt.sign(
+    { id: this._id }, // Only include the user ID to minimize exposure
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
+  );
+};
+
+// 🔹 Clear Refresh Token (when user logs out or refresh token is invalidated)
+UserSchema.methods.clearRefreshToken = async function () {
+  this.refreshToken = null;
+  await this.save();
+};
 
 const User = mongoose.model("User", UserSchema);
 export default User;

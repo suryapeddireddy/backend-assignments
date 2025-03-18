@@ -1,6 +1,7 @@
-import User from "../models/user.models.js";
+import User from '../models/User.models.js';
 import { uploadImage } from "../utils/cloudinary.js";
 
+// Register User
 const registerUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -49,67 +50,76 @@ const registerUser = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
-const getAcessandRefreshTokens = async (Userid) => {
+
+
+const getAccessAndRefreshTokens = async (Userid) => {
   try {
     const user = await User.findById(Userid);
-    const accessToken = await user.generateRefreshToken();
-    const refreshToken = await user.generateAccessToken();
-    user.refershToken = refreshToken;
-    user.save({ validateBeforeSave: false });
+    const accessToken = await user.generateAccessToken(); // Corrected to generate access token
+    const refreshToken = await user.generateRefreshToken(); // Corrected to generate refresh token
+    user.refreshToken = refreshToken;
+    await user.save({ validateBeforeSave: false });
     return { accessToken, refreshToken };
   } catch (error) {
     console.log("Unable to fetch Tokens", error);
   }
 };
+
+// Login User
 const LoginUser = async (req, res) => {
   try {
     const { email, username, password } = req.body;
+
     if (!(email || username) || !password) {
       return res.status(400).json({ message: "Please fill all the fields" });
     }
-    const UserExists = await User.findOne({ $or: [{ email }, { username }] });
+
+    const UserExists = await User.findOne({ $or: [{ email }, { username }] }).select("+password");
     if (!UserExists) {
-      return res.status(400).json({ message: "User doesnt exist" });
+      return res.status(400).json({ message: "User doesn't exist" });
     }
-    const PasswordMatch = await UserExists.ispasswordCorrect(password);
+
+    const PasswordMatch = await UserExists.isPasswordCorrect(password);
     if (!PasswordMatch) {
       return res.status(400).json({ message: "Password is incorrect" });
     }
-    const { accessToken, refreshToken } = await getAcessandRefreshTokens(
-      UserExists._id
-    );
-    const LoggedinUser = await User.findById(UserExists._id).select(
-      "-refreshToken"
-    );
+
+    const { accessToken, refreshToken } = await getAccessAndRefreshTokens(UserExists._id);
+    const LoggedinUser = await User.findById(UserExists._id);
     const options = {
       httpOnly: true,
-      secure: true,
+      secure: false, // Ensure secure cookie in production
     };
+
     return res
       .status(200)
       .cookie("accessToken", accessToken, options)
       .cookie("refreshToken", refreshToken, options)
       .json({
-        message: "User successfully Loggedin",
+        message: "User successfully logged in",
         LoggedinUser,
         refreshToken,
       });
   } catch (error) {
     console.log("Failed to login User", error);
+    return res.status(401).json({ message: "Failed to login", error: error });
   }
 };
 
+// Logout User
 const LogoutUser = async (req, res) => {
   try {
     const user = req.user;
     await User.findByIdAndUpdate(user.id, { refreshToken: "" }, { new: true });
     return res
       .status(200)
-      .clearcookie("accessToken")
-      .clearcookie("refreshToken")
-      .json({ message: "user loggedout successfully" });
+      .clearCookie("accessToken") // Corrected to `clearCookie`
+      .clearCookie("refreshToken") // Corrected to `clearCookie`
+      .json({ message: "User logged out successfully" });
   } catch (error) {
-    console.log("Error Loggingout User", error);
+    console.log("Error logging out User", error);
+    return res.status(500).json({ message: "Error logging out" });
   }
 };
-export { registerUser };
+
+export { registerUser, LoginUser, LogoutUser };
