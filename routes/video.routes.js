@@ -11,9 +11,11 @@ upload.fields([
 publishaVideo
 );
 
-router.route('/:Videoid').get(getVideoById)
-.patch(upload.fields([{name:'Thumbnail',maxCount:1}]),updateVideo)
-.delete(DeleteVideo);
+router.route('/:videoId') 
+  .get(getVideoById)
+  .patch(verifyJWT, upload.fields([{ name: 'thumbnail', maxCount: 1 }]), updateVideo)
+  .delete(verifyJWT, DeleteVideo); // Added verifyJWT to delete as well
+
 
 
 export default router;

@@ -58,15 +58,86 @@ const publishaVideo = async (req, res) => {
 
 const getAllVideos=async(req,res)=>{
 //write a code
+try {
+    const page = parseInt(req.query.page) || 1;  // Default to page 1
+    const limit = parseInt(req.query.limit) || 10; // Default limit is 10
+    const query = req.query.query || ""; // Search term
+    const sortBy = req.query.sortBy || "createdAt"; // Sort field
+    const sortType = req.query.sortType === "desc" ? -1 : 1; // Ascending (1) or Descending (-1)
+    const userId = req.query.userId; // Optional filter by user ID
+
+    let filter={};
+    if(query){
+    filter.title={$regex:query,$options:"i"}; //case-insensitivesearch, regex isfor pattern matching, if dont include i it will become case sensitive
+    }
+   if(userId){
+   filter.owner=userId;
+   }
+   const skip=(page-1)*limit;
+   const videos=await Video.find(filter).skip(skip).sort({[sortBy]:sortType});
+   return res.status(200).json({videos});
+} catch (error) {
+  return res.status(500).json({message:"Failed to get videos"});  
+}
 }
 
 const getVideoById=async(req,res)=>{
-
+try {
+const video=await Video.findById(req.params.id);
+if(!video){
+return res.status(404).json({message:"video not found"});
+}
+return res.status(200).json(video);
+} catch (error) {
+ return res.status(500).json({message:"unable to fetch video"});   
+}
 }
 
-const updateVideo=async(req,res)=>{
-
-}
+const updateVideo = async (req, res) => {
+    try {
+      const videoId = req.params.videoId.trim(); // Correctly extract video ID
+      console.log(req.params); // For debugging purposes
+      
+      const { title, description } = req.body;
+      
+      // Check if the thumbnail file exists
+      const thumbnaillocalpath = req.files && req.files['thumbnail'] ? req.files['thumbnail'][0].path : null;
+      
+      // Find video by ID
+      const video = await Video.findById(videoId);
+      if (!video) {
+        return res.status(404).json({ message: "Video not found" });
+      }
+      
+      // Ensure the user is authorized
+      if (String(req.user?._id) !== String(video.owner)) {
+        return res.status(403).json({ message: "Unauthorized request" });
+      }
+      
+      // Update fields only if they exist in the request body
+      if (title) video.title = title;
+      if (description) video.description = description;
+      
+      // Handle thumbnail upload if a new file is provided
+      if (thumbnaillocalpath) {
+        const thumbnail = await uploadImage(thumbnaillocalpath, `${req.user?.username}/thumbnailurl`);
+        video.thumbnail = thumbnail.secure_url;
+      }
+      
+      // Save the updated video
+      await video.save();
+      
+      return res.status(200).json({
+        message: "Video updated successfully",
+        video,
+      });
+    } catch (error) {
+      console.error(error); // For debugging purposes
+      return res.status(500).json({ message: "Unable to update video", error });
+    }
+  };
+  
+  
 const DeleteVideo=async(req,res)=>{
 
 }
