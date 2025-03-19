@@ -11,7 +11,6 @@ required:true
 owner :{
 type:mongoose.Schema.Types.ObjectId,
 ref:"User",
-required:true
 },
 video:{
 type:String,
@@ -23,11 +22,9 @@ required:true
 },
 duration:{
 type:String,
-required:true
 },
 views:{
 type:Number,
-required:true
 }
 },{timestamps:true});
 
