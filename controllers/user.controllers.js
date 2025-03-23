@@ -4,7 +4,13 @@ import { uploadImage } from "../utils/cloudinary.js";
 // Register User
 const registerUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    let { username, email, password } = req.body;
+
+    // Trim and convert username and email to lowercase
+    username = username.trim().toLowerCase();
+    email = email.trim().toLowerCase();
+
+    console.log(username, email, password);
 
     // Validate that all fields are provided
     if (!username || !email || !password) {
@@ -46,8 +52,12 @@ const registerUser = async (req, res) => {
 
     return res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Username or Email already exists" });
+    }
+
     console.log("Failed to register User", error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 

@@ -16,5 +16,5 @@ const SubscriptionSchema = new mongoose.Schema(
   { timestamps: true } // Auto add createdAt & updatedAt timestamps
 );
 
-const Subscription = mongoose.model("Subscription", SubscriptionSchema);
+const Subscription = mongoose.model("subscription", SubscriptionSchema);
 export default Subscription;

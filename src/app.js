@@ -20,8 +20,8 @@ app.use(cookieParser()); // ✅ Middleware to parse cookies
 // Secure routes
 import userRoutes from "../routes/users.routes.js";
 import videoRoutes from "../routes/video.routes.js";
-
+import suscriptionRoutes from '../routes/subscription.routes.js'
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/videos", videoRoutes);
-
+app.use("/api/v1/subscriptions",suscriptionRoutes);
 export default app;

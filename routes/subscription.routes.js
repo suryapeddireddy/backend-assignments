@@ -8,7 +8,7 @@ import {
 const router =Router();
 
 router.use(verifyJWT); // middleware,so all can use later
-router.route('/user/:userId').get(getUserSubscriptions);
+router.route('/user/').get(getUserSubscriptions);
 router.route('/channel/:channelId').get(getChannelSubscribers).patch(handleSubscription);
 
 

@@ -8,12 +8,16 @@ dotenv.config();
 const UserSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: true,
-    unique: true,
+    required: [true, "Username is required"],
+    trim: true,
+    lowercase: true,
+    unique: true, // Ensure uniqueness
   },
   email: {
     type: String,
-    required: true,
+    required: [true, "Email is required"],
+    trim: true,
+    lowercase: true,
     unique: true,
   },
   password: {
@@ -51,6 +55,11 @@ const UserSchema = new mongoose.Schema({
 
 // 🔹 Hash password before saving user
 UserSchema.pre("save", async function (next) {
+  if (!this.username || typeof this.username !== "string") {
+    return next(new Error("Invalid username"));
+  }
+
+
   if (this.isModified("password") || this.isNew) {
     const saltRounds = 10;
     this.password = await bcrypt.hash(this.password, saltRounds);
@@ -65,20 +74,16 @@ UserSchema.methods.isPasswordCorrect = async function (password) {
 
 // 🔹 Generate Refresh Token
 UserSchema.methods.generateRefreshToken = async function () {
-  return jwt.sign(
-    { id: this._id },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY }
-  );
+  return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+  });
 };
 
 // 🔹 Generate Access Token
 UserSchema.methods.generateAccessToken = async function () {
-  return jwt.sign(
-    { id: this._id }, // Only include the user ID to minimize exposure
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY }
-  );
+  return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
+  });
 };
 
 // 🔹 Clear Refresh Token (when user logs out or refresh token is invalidated)
