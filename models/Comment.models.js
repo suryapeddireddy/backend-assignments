@@ -13,6 +13,9 @@ ref:"User"
 text:{
 type:String,
 required:true
+},
+likes:{
+type:Number
 }
 }
 );
