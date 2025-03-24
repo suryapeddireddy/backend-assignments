@@ -5,7 +5,7 @@ import {GetchannelVideos } from "../controllers/dashboard.controllers";
 const router=Router();
 router.use(verifyJWT);
 
-router.route('/channelVideos').get(GetchannelVideos);
+router.route('/channelvideos/:channelId').get(GetchannelVideos);
 
 
 export default router;

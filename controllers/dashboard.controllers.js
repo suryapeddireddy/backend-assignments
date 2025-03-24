@@ -2,7 +2,7 @@ import Video from "../models/Video.js";
 
 const GetchannelVideos=async(req,res)=>{
 try {
-const {channelId}=req.query;
+const {channelId}=req.params;
 if(!channelId){
 return res.status(400).json({message:"channelId is required"});
 }
