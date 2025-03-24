@@ -151,6 +151,20 @@ try {
 }
 }
 
-export  {publishaVideo,getAllVideos,getVideoById,updateVideo,DeleteVideo};
+const watchVideo=async(req,res)=>{
+try {
+ const {videoId}=req.params;
+ const video=await Video.findById(videoId);
+ if(!video){
+ return res.status(404).json({message:"Video not found"});
+ }
+ video.views=video.views+1;
+ await video.save();
+ return res.status(200).json({message:"video view increased"});
+} catch (error) {
+ return res.status(500).json({message:"Unable to increase video views"}); 
+}
+}
+export  {publishaVideo,getAllVideos,getVideoById,updateVideo,DeleteVideo,watchVideo};
 
 

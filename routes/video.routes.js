@@ -1,5 +1,5 @@
 import { Router } from "express";
-import {publishaVideo,getAllVideos,getVideoById,updateVideo,DeleteVideo} from '../controllers/video.controllers.js'
+import {publishaVideo,getAllVideos,getVideoById,updateVideo,DeleteVideo,watchVideo} from '../controllers/video.controllers.js'
 import upload from "../middlewares/Multer.middleware.js";
 import verifyJWT from '../middlewares/auth.middleware.js';
 const router=Router();
@@ -16,6 +16,6 @@ router.route('/:videoId')
   .patch(verifyJWT, upload.fields([{ name: 'thumbnail', maxCount: 1 }]), updateVideo)
   .delete(verifyJWT, DeleteVideo); // Added verifyJWT to delete as well
 
-
+router.route('/:videId/watch', watchVideo);
 
 export default router;
